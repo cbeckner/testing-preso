@@ -1,0 +1,333 @@
+<!doctype html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+	<title>reveal.js</title>
+
+	<link rel="stylesheet" href="css/reveal.css">
+	<link rel="stylesheet" href="css/theme/black.css">
+	<link rel="stylesheet" href="css/custom.css">
+	<!-- Theme used for syntax highlighting of code -->
+	<link rel="stylesheet" href="lib/css/zenburn.css">
+
+	<!-- Printing and PDF exports -->
+	<script>
+		var link = document.createElement('link');
+		link.rel = 'stylesheet';
+		link.type = 'text/css';
+		link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+		document.getElementsByTagName('head')[0].appendChild(link);
+
+	</script>
+</head>
+
+<body>
+	<div class="reveal">
+		<div class="slides">
+			<section>
+				<h1>Test Driven Development</h1>
+				<h3>with examples in Swift & Java</h3>
+				<p><small>created by Cody Beckner</small></p>
+			</section>
+			<section>
+				<section>
+					<h3>What IS TDD?</h3>
+					<blockquote class="fragment">"...a software development process that relies on the repetition of a very short development cycle..."</blockquote>
+					<blockquote class="fragment">"Unit testing is the process of validating that pieces of your code operate as you expect"</blockquote>
+					<blockquote class="fragment">"Unit testing is a design strategy"<cite>ME</cite></blockquote>
+				</section>
+				<section>
+					<img src="images/tdd-cycle.jpg" />
+					<p class="fragment">Fail First. Fail Early. Fail Often.</p>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h3>Yes but ...</h3>
+					<h1 class="fragment">WHY?</h1>
+				</section>
+				<section>
+					<h3>Writing Tests...</h3>
+					<ul>
+						<li class="fragment">Uncovers design flaws</li>
+						<li class="fragment">Adds an executable description of what the code does</li>
+						<li class="fragment">Encourages creation of loosely coupled (and easily tested) components</li>
+						<li class="fragment">Can clarify the acceptance criteria</li>
+						<li class="fragment">Results in the beginning of an integration test suite</li>
+					</ul>
+				</section>
+				<section>
+					<h3>Running Tests...</h3>
+					<ul>
+						<li class="fragment">Finds errors early</li>
+						<li class="fragment">Prevents "gold plating". Let's us know when we've done enough</li>
+						<li class="fragment">Quickly know if a change had an unintented effect</li>
+					</ul>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h3>So, test... EVERYTHING?</h3>
+					<h1 class="fragment">NO!</h1>
+					<p class="fragment"><small>(for the most part)</small></p>
+				</section>
+				<section>
+					<h3>Testing the User Interface</h3>
+					<p class="fragment" style="color:red">Don't test layout code</p>
+					<pre class="fragment"><code class="hljs" data-trim contenteditable>
+					XCTAssert(vc.numberLabel.width == 80.0)	
+					</code></pre>
+					<p class="fragment" style="color:greenyellow">DO test layout values</p>
+					<pre class="fragment"><code class="hljs" data-trim contenteditable>
+					XCTAssert(vc.numberLabel.text == "80.0")
+					</code></pre>
+					<p class="fragment"><small>(especially after calling a function that changed them)</small></p>
+				</section>
+				<section>
+					<h3>Testing CRUD operations / SDK / Framework operations</h3>
+					<h1 class="fragment">Don't.</h1>
+					<ul class="fragment">
+						<li>Assume that Frameworks / SDKs / etc "just work"</li>
+						<li>Tests should NOT modify system data when they run.</li>
+						<li class="fragment"><i>Isolate calls to the above!</i></li>
+				</section>
+				<section>
+					<h4>Otherwise ...</h4>
+					<h2 class="fragment">TEST</h2>
+					<h2 class="fragment">Everything</h2>
+					<h1 class="fragment">Else</h1>
+					<p class="fragment">Basically, if your code alters a variable or data that will be shown to the user, test it.</p>
+				</section>
+			</section>
+			<section style="text-align:left">
+				<h1>F<span class="fragment" style="color:gray">ast</span><br/> I<span class="fragment" style="color:gray">ndependant</span>
+					<br/> R<span class="fragment" style="color:gray">epeatable</span>
+					<br/> S<span class="fragment" style="color:gray">elf Validating</span>
+					<br/> T<span class="fragment" style="color:gray">imely</span>
+				</h1>
+			</section>
+			<section style="text-align:left">
+				<div class="colleft">
+					<h1>Arrange</h1>
+					<h1>Act</h1>
+					<h1>Assert</h1>
+				</div>
+				<div class="colright">
+					<h1 class="fragment" style="color:gray">Given</h1>
+					<h1 class="fragment" style="color:gray">When</h1>
+					<h1 class="fragment" style="color:gray">Then</h1>
+				</div>
+			</section>
+			<section>
+				<section>
+					<h1>IOS / Swift</h1>
+				</section>
+				<section>
+					<h2>Writing Tests</h2>
+				</section>
+				<section>
+					<h3>XCTest (XCode Testing Framework)</h3>
+					<img src="images/xcode-basic-test.png" />
+					<ul>
+						<li class="fragment">Uses <a target="_blank" href="https://developer.apple.com/reference/xctest">XCTest</a> framework</li>
+						<li class="fragment">Maintained by Apple</li>
+						<li class="fragment">Includes a UI testing component</li>
+					</ul>
+				</section>
+				<section>
+					<h4>Example</h4>
+					<pre><code class="swift">
+func testGetRelativeTimeSinceTwoDaysAgo() {
+	// Arrange
+	var testDate = Date()
+	let calendar = NSCalendar.current
+	testDate = calendar.date(byAdding: .day, value: -2, to: testDate)!
+	let format =  "EEEE hh:mm a"
+	let expectedResult = Date.format(date: testDate, format: format)
+	
+	// Act
+	let answer = testDate.relativeFormatToNow()
+
+	// Assert
+	XCTAssertEqual(answer, expectedResult)
+}
+
+						</code></pre>
+
+				</section>
+				<!--<section>
+					<h4>XCTest Assertions</h4>
+					<ul class="colleft">
+						<li>XCTAssert</li>
+						<li>XCTAssertEqual</li>
+						<li>XCTAssertEqualWithAccuracy</li>
+						<li>XCTAssertFalse</li>
+						<li>XCTAssertGreaterThan</li>
+						<li>XCTAssertGreaterThanOrEqual</li>
+						<li>XCTAssertLessThan</li>
+					</ul>
+					<ul class="colright">
+						<li>XCTAssertLessThanOrEqual</li>
+						<li>XCTAssertNil</li>
+						<li>XCTAssertNotEqual</li>
+						<li>XCTAssertNotEqualWithAccuracy</li>
+						<li>XCTAssertNotNil</li>
+						<li>XCTAssertTrue</li>
+						<li>XCTFail</li>
+					</ul>
+				</section>-->
+				<section>
+					<h3>Quick / Nimble</h3>
+					<ul>
+						<li class="fragment"><a target="_blank" href="https://github.com/Quick/Quick">Quick</a> is a behavior-driven development framework.</li>
+						<li class="fragment">Uses <a target="_blank" href="https://github.com/Quick/Nimble">Nimble</a> to handle assertions.</li>
+						<li class="fragment">Maintained by the Open Source community</li>
+					</ul>
+				</section>
+				<section>
+					<h4>Example</h4>
+					<pre><code class="swift">
+  override func spec() {
+    describe("Date helper") {
+      context("time since") {
+        it ("two day ago should return two days") {
+          // Given
+          var testDate = Date()
+          let calendar = NSCalendar.current
+          testDate = calendar.date(byAdding: .day, value: -2, to: testDate)!
+          let format =  "EEEE hh:mm a"
+          let expectedResult = Date.format(date: testDate, format: format)
+          
+          // When
+          let answer = testDate.relativeFormatToNow()
+          
+          // Then
+          expect {answer}.to(equal(expectedResult))
+        }
+      }
+    }
+  }
+}
+</code></pre>
+				</section>
+				<section>
+					<h2>Running Tests</h2>
+
+					<section>
+						<h3>XCode</h3>
+						<ul class="fragment">
+							<li>Using Test Navigator</li>
+							<li>Gutter of Source Code</li>
+							<li>⌘U (runs everything)
+						</ul>
+					</section>
+					<hr/>
+					<section>
+						<h3>Fastlane (terminal)</h3>
+						<ul class="fragment">
+							<li><code>fastlane ios test</code></li>
+							<li><code>fastlane scan</code></li>
+						</ul>
+					</section>
+				</section>
+			</section>
+			<section>
+				<section>
+					<h1>Android / Java</h1>
+				</section>
+				<section>
+					<h2>Writing Tests</h2>
+				</section>
+				<section>
+					<h3>JUnit</h3>
+					<ul>
+						<li class="fragment">Utilizes the xUnit architecture</li>
+						<li class="fragment">Maintained by the Open Source Community</li>
+					</ul>
+				</section>
+				<section>
+					<h4>Example</h4>
+					<pre><code class="java">
+@Test
+public void testGetRelativeTimeSinceTwoDaysAgo() {
+	// Arrange
+	Calendar calendar = Calendar.getInstance();
+	calendar.add(Calendar.DAY_OF_YEAR, -2);
+	Date testDate = calendar.getTime();
+	DateFormat sdf = new SimpleDateFormat("EEEE hh:mm a");
+	String expectedResult = sdf.format(testDate);
+
+	// Act
+	String result = Util.getRelativeTimeSince(testDate);
+
+	// Assert
+	assertTrue(result.equalsIgnoreCase(expectedResult));
+}
+						</code>
+						</pre>
+				</section>
+				<section>
+					<h2>Running Tests</h2>
+					<section>
+						<h3>Android Studio</h3>
+						<ul class="fragment">
+							<li>In "Project" view, right click on folder and "Run All Tests"</li>
+							<li>Gutter of Source Code</li>
+							<li>Right click on class or method</li>
+						</ul>
+					</section>
+					</hr>
+					<section>
+						<h3>Terminal</h3>
+						<ul class="fragment">
+							<li><code>./gradlew test</code></li>
+						</ul>
+					</section>
+				</section>
+			</section>
+			<section>
+				<h1>Video!</h1>
+				<a href="https://youtu.be/d5Y1B1cmaGQ?t=125">Click Me!</a>
+		</div>
+	</div>
+
+	<script src="lib/js/head.min.js"></script>
+	<script src="js/reveal.js"></script>
+
+	<script>
+		// More info about config & dependencies:
+		// - https://github.com/hakimel/reveal.js#configuration
+		// - https://github.com/hakimel/reveal.js#dependencies
+		Reveal.initialize({
+			controls: true,
+			progress: true,
+			history: true,
+			center: true,
+			transition: 'convex', // none/fade/slide/convex/concave/zoom
+			dependencies: [{
+					src: 'plugin/markdown/marked.js'
+				},
+				{
+					src: 'plugin/markdown/markdown.js'
+				},
+				{
+					src: 'plugin/notes/notes.js',
+					async: true
+				},
+				{
+					src: 'plugin/highlight/highlight.js',
+					async: true,
+					callback: function () {
+						hljs.initHighlightingOnLoad();
+					}
+				}
+			]
+		});
+
+	</script>
+</body>
+
+</html>
